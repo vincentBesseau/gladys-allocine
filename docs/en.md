@@ -18,10 +18,12 @@ itself.
 ## Configuration
 
 1. Open the integration's **Configuration** tab.
-2. Run the **Find my cinema** action, typing a city, postal code, or cinema
-   name (the field is required: with ~2000 cinemas in France, there's no
-   sensible full list to show by default). The result is shown under the
-   button as `Cinema name — City (ID: P0052)`.
+2. Run the **Find my cinema** action: leave the field empty to list the 10
+   cinemas nearest your Gladys house (limited to the house's own department
+   — see "Known limitations" below), or type a city, postal code, or cinema
+   name to search nationally. The result is shown under the button as
+   `Cinema name — City (12.3 km) (ID: P0052)` (the distance only appears
+   for a proximity search).
 3. Copy the ID of your cinema into the **Cinema ID** field, then save.
 
 The films playing today at that cinema then appear in the dashboard's
@@ -35,8 +37,9 @@ VF/VOST).
 - Only today's films and showtimes (no view of tomorrow or later days).
 - No trailer (the endpoint used doesn't include one; could be added with an
   extra call in the future).
-- Finding a cinema always requires typing something: no full list, and no
-  proximity search yet (unlike `gladys-ugc`/`gladys-cgr`/`gladys-pathe`).
+- The proximity search is limited to the Gladys house's own department: a
+  cinema just across the department border may not show up. Type its city
+  directly in that case.
 
 ## Troubleshooting
 

@@ -49,10 +49,17 @@ integration really does cover both.
 - `movies.getUpcoming` returns the films playing there today, each with its
   showtimes (`movie.showtimes`, Gladys core B.19).
 - A **Find my cinema** action searches allocine.fr live by city, postal
-  code, or cinema name. Unlike the sibling integrations, the query is
-  **required**: with ~2000 cinemas nationally there is no sensible "list
-  everything" default, and the search endpoint itself 404s on an empty
-  query.
+  code, or cinema name. Left empty, it instead returns the 10 cinemas
+  nearest the Gladys house — allocine.fr itself has no geo "near me"
+  endpoint and its theater pages carry no lat/lon (verified live), so this
+  resolves the house's own department via France's free
+  [geo.api.gouv.fr](https://geo.api.gouv.fr/), ranks that department's
+  communes by distance locally, and searches allocine.fr for the nearest
+  ones — town-center accuracy, not exact-address, and limited to the
+  house's own department (see `src/allocine/nearby.js` for the full
+  reasoning). Falls back to no results (with a message) when no house has a
+  location set, since there is no sensible "list everything" default at
+  ~2000 cinemas nationally.
 
 Version labels (VF/VOST) are a best-effort read of how allocine.fr itself
 groups showtimes (`multiple` = dubbed French, the `original*` groups =

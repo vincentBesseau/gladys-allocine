@@ -12,6 +12,7 @@
   "categories": ["multimedia"],
   "cover_image": "https://raw.githubusercontent.com/vincentBesseau/gladys-allocine/main/cover.png",
   "transports": ["cloud"],
+  "location": true,
   "config_schema": [
     {
       "key": "intro",
@@ -47,8 +48,8 @@
         "fr": "Trouver mon cinéma"
       },
       "description": {
-        "en": "Type a city, postal code, or cinema name to search (required: there are too many cinemas nationally to list them all).",
-        "fr": "Saisissez une ville, un code postal ou le nom d'un cinéma pour chercher (obligatoire : il y a trop de cinémas au niveau national pour tous les lister)."
+        "en": "Leave the field empty to list the 10 cinemas nearest your Gladys house (limited to its own department), or type a city, postal code, or cinema name to search nationally.",
+        "fr": "Laissez le champ vide pour lister les 10 cinémas les plus proches de votre maison Gladys (limité à son département), ou saisissez une ville, un code postal ou le nom d'un cinéma pour chercher au niveau national."
       },
       "timeout_seconds": 15,
       "fields": [
@@ -59,7 +60,7 @@
             "en": "City, postal code or cinema name",
             "fr": "Ville, code postal ou nom du cinéma"
           },
-          "required": true
+          "required": false
         }
       ]
     }

@@ -20,11 +20,13 @@ d'accès publics que le site utilise déjà pour lui-même.
 ## Configuration
 
 1. Ouvrez l'onglet **Configuration** de l'intégration.
-2. Lancez l'action **Trouver mon cinéma** en tapant une ville, un code
-   postal ou le nom d'un cinéma (le champ est obligatoire : avec ~2000
-   cinémas en France, il n'y a pas de liste complète sensée à afficher par
-   défaut). Le résultat s'affiche sous le bouton, au format
-   `Nom du cinéma — Ville (ID: P0052)`.
+2. Lancez l'action **Trouver mon cinéma** : laissez le champ vide pour
+   lister les 10 cinémas les plus proches de votre maison Gladys (limité au
+   département de la maison — voir "Limites connues" ci-dessous), ou tapez
+   une ville, un code postal ou le nom d'un cinéma pour chercher au niveau
+   national. Le résultat s'affiche sous le bouton, au format
+   `Nom du cinéma — Ville (12.3 km) (ID: P0052)` (la distance n'apparaît que
+   pour une recherche par proximité).
 3. Copiez l'identifiant du cinéma souhaité dans le champ **Identifiant du
    cinéma**, puis enregistrez.
 
@@ -40,9 +42,10 @@ cinéma (heure et version, VF/VOST).
   jours suivants).
 - Pas de bande-annonce (le point d'accès utilisé ne l'inclut pas ; pourrait
   être ajouté avec un appel supplémentaire à l'avenir).
-- La recherche de cinéma nécessite toujours une saisie : pas de liste
-  complète, ni de recherche par proximité géographique pour l'instant
-  (contrairement à `gladys-ugc`/`gladys-cgr`/`gladys-pathe`).
+- La recherche par proximité se limite au département de la maison Gladys :
+  si le cinéma le plus proche se trouve juste de l'autre côté de la
+  frontière départementale, il peut ne pas apparaître. Tapez alors sa ville
+  directement.
 
 ## Dépannage
 

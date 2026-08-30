@@ -15,27 +15,73 @@
 import { GladysIntegration, logger } from '@gladysassistant/integration-sdk';
 import { normalizeConfig, validateConfig } from './src/config.js';
 import { searchCinemas } from './src/allocine/cinemas.js';
+import { nearbyCinemas } from './src/allocine/nearby.js';
 import { fetchNowPlaying } from './src/allocine/nowPlaying.js';
 
 const gladys = new GladysIntegration();
 
 let config = normalizeConfig();
 
+// How many cinemas to show when the "Find my cinema" query is left empty
+// and the house is located.
+const NEARBY_CINEMAS_LIMIT = 10;
+
 function formatCinemaLine(cinema) {
-  return `${cinema.name} — ${cinema.city} (ID: ${cinema.id})`;
+  const distance = cinema.distanceKm === undefined ? '' : ` (${cinema.distanceKm} km)`;
+
+  return `${cinema.name} — ${cinema.city}${distance} (ID: ${cinema.id})`;
+}
+
+/**
+ * Cinemas near the first located Gladys house, or `null` when there is no
+ * house, no house has been located (`latitude`/`longitude` null), or
+ * `getHouses()` fails (e.g. `location` not yet granted for this install).
+ */
+async function findNearbyCinemas() {
+  let houses;
+
+  try {
+    houses = await gladys.getHouses();
+  } catch (error) {
+    logger.debug('Unable to fetch houses for geolocation', error);
+
+    return null;
+  }
+
+  const house = houses?.[0];
+
+  if (!house || house.latitude === null || house.longitude === null) {
+    return null;
+  }
+
+  return nearbyCinemas(house, NEARBY_CINEMAS_LIMIT);
 }
 
 gladys.onAction('search_cinemas', async (fields) => {
   const query = (fields.query || '').trim();
 
-  const results = await searchCinemas(query);
+  let results;
 
-  logger.info(`Action search_cinemas <- query="${query}", ${results.length} result(s)`);
+  if (query) {
+    results = await searchCinemas(query);
+
+    logger.info(`Action search_cinemas <- query="${query}", ${results.length} result(s)`);
+  } else {
+    results = await findNearbyCinemas();
+
+    if (results) {
+      logger.info(`Action search_cinemas <- no query, ${results.length} cinema(s) near the house`);
+    } else {
+      results = [];
+
+      logger.info('Action search_cinemas <- no query and no located house');
+    }
+  }
 
   if (results.length === 0) {
     return {
-      en: 'No cinema matches this search.',
-      fr: 'Aucun cinéma ne correspond à cette recherche.',
+      en: 'No cinema matches this search. Leave the field empty and set a location on your Gladys house to search nearby cinemas instead.',
+      fr: 'Aucun cinéma ne correspond à cette recherche. Laissez le champ vide et renseignez la position de votre maison Gladys pour chercher parmi les cinémas proches.',
     };
   }
 
