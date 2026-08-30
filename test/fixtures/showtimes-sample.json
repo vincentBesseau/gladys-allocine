@@ -1,0 +1,67 @@
+{
+  "error": false,
+  "message": null,
+  "nextDate": null,
+  "results": [
+    {
+      "movie": {
+        "internalId": 327993,
+        "title": "L'Inconnue",
+        "synopsis": "A bientôt 40 ans, David Zimmerman est photographe mais personne ne le sait.",
+        "poster": { "url": "https://fr.web.img3.acsta.net/img/af/a2/afa2a4e9bb49e003bceb86c209f46033.jpg" },
+        "releases": [{ "releaseDate": { "date": "2026-08-26" } }]
+      },
+      "showtimes": {
+        "original": [],
+        "original_st": [],
+        "original_sme": [],
+        "multiple": [{ "startsAt": "2026-08-30T14:00:00" }, { "startsAt": "2026-08-30T20:30:00" }]
+      }
+    },
+    {
+      "movie": {
+        "internalId": 300123,
+        "title": "A Foreign Tale",
+        "synopsis": "Une histoire venue d'ailleurs.",
+        "poster": { "url": "https://fr.web.img3.acsta.net/img/foreign-poster.jpg" },
+        "releases": [{ "releaseDate": { "date": "2026-08-19" } }]
+      },
+      "showtimes": {
+        "original": [{ "startsAt": "2026-08-30T18:15:00" }],
+        "original_st": [],
+        "original_sme": [],
+        "multiple": []
+      }
+    },
+    {
+      "movie": {
+        "internalId": 400456,
+        "title": "No Sessions Today",
+        "synopsis": "Ce film n'a plus de séance aujourd'hui.",
+        "poster": null,
+        "releases": [{ "releaseDate": { "date": "2026-08-12" } }]
+      },
+      "showtimes": {
+        "original": [],
+        "original_st": [],
+        "original_sme": [],
+        "multiple": []
+      }
+    },
+    {
+      "movie": {
+        "internalId": 500789,
+        "title": "No Release Date",
+        "synopsis": "Ce film n'a pas de date de sortie exploitable.",
+        "poster": null,
+        "releases": []
+      },
+      "showtimes": {
+        "original": [],
+        "original_st": [],
+        "original_sme": [],
+        "multiple": [{ "startsAt": "2026-08-30T21:00:00" }]
+      }
+    }
+  ]
+}

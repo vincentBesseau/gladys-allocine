@@ -1,0 +1,68 @@
+{
+  "manifest_version": 1,
+  "type": "movies",
+  "name": "AlloCiné",
+  "description": {
+    "en": "Movies currently playing at any French cinema (chain or independent).",
+    "fr": "Films actuellement à l'affiche dans n'importe quel cinéma français (chaîne ou indépendant)."
+  },
+  "version": "0.1.0",
+  "docker_image": "ghcr.io/vincentbesseau/gladys-allocine:0.1.0",
+  "gladys_version": ">=4.90.0",
+  "categories": ["multimedia"],
+  "cover_image": "https://raw.githubusercontent.com/vincentBesseau/gladys-allocine/main/cover.png",
+  "transports": ["cloud"],
+  "location": true,
+  "config_schema": [
+    {
+      "key": "intro",
+      "type": "section",
+      "label": {
+        "en": "Cinema",
+        "fr": "Cinéma"
+      },
+      "description": {
+        "en": "This integration reads the same public showtimes data that allocine.fr's own pages already use. It is not an official AlloCiné product, is not affiliated with AlloCiné, and can break without notice if the site changes. Unlike the UGC/CGR/Pathé integrations, this one works for ANY French cinema, chain or independent. Run the action below to find your cinema's ID, then paste it below.",
+        "fr": "Cette intégration lit les mêmes données d'horaires publiques que les pages d'allocine.fr utilisent déjà. Ce n'est pas un produit officiel AlloCiné, elle n'est pas affiliée à AlloCiné, et peut cesser de fonctionner sans préavis si le site change. Contrairement aux intégrations UGC/CGR/Pathé, celle-ci fonctionne pour N'IMPORTE QUEL cinéma français, indépendant ou en chaîne. Lancez l'action ci-dessous pour trouver l'identifiant de votre cinéma, puis collez-le ci-dessous."
+      }
+    },
+    {
+      "key": "cinema_id",
+      "type": "string",
+      "label": {
+        "en": "Cinema ID",
+        "fr": "Identifiant du cinéma"
+      },
+      "description": {
+        "en": "The ID shown by the \"Find my cinema\" action, e.g. P0905.",
+        "fr": "L'identifiant affiché par l'action \"Trouver mon cinéma\", par ex. P0905."
+      },
+      "required": true
+    }
+  ],
+  "actions": [
+    {
+      "key": "search_cinemas",
+      "label": {
+        "en": "Find my cinema",
+        "fr": "Trouver mon cinéma"
+      },
+      "description": {
+        "en": "Leave the field empty to list the 10 cinemas nearest your Gladys house (limited to its own department), or type a city, postal code, or cinema name to search nationally.",
+        "fr": "Laissez le champ vide pour lister les 10 cinémas les plus proches de votre maison Gladys (limité à son département), ou saisissez une ville, un code postal ou le nom d'un cinéma pour chercher au niveau national."
+      },
+      "timeout_seconds": 15,
+      "fields": [
+        {
+          "key": "query",
+          "type": "string",
+          "label": {
+            "en": "City, postal code or cinema name",
+            "fr": "Ville, code postal ou nom du cinéma"
+          },
+          "required": false
+        }
+      ]
+    }
+  ]
+}
