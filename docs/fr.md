@@ -1,8 +1,8 @@
 # AlloCiné
 
 Films actuellement à l'affiche dans n'importe quel cinéma français —
-indépendant ou en chaîne — affichés dans le widget "Prochaines sorties" de
-Gladys.
+indépendant ou en chaîne — sous forme de widget de tableau de bord, avec un
+déclencheur de scène pour l'ajout d'un nouveau film.
 
 ## Important : intégration non officielle
 
@@ -30,10 +30,19 @@ d'accès publics que le site utilise déjà pour lui-même.
 3. Copiez l'identifiant du cinéma souhaité dans le champ **Identifiant du
    cinéma**, puis enregistrez.
 
-Les films à l'affiche aujourd'hui dans ce cinéma apparaissent alors dans le
-widget "Prochaines sorties" du tableau de bord. En cliquant sur une affiche,
-la fiche du film affiche un tableau des horaires de séances du jour dans ce
-cinéma (heure et version, VF/VOST).
+Ajoutez le widget **À l'affiche** de l'intégration à un tableau de bord
+Gladys pour voir les films à l'affiche aujourd'hui dans ce cinéma : affiche,
+lien de réservation et horaires de séances du jour (heure et version,
+VF/VOST).
+
+## Déclencheur de scène
+
+L'intégration déclare aussi un déclencheur de scène **Nouveau film ajouté** :
+créez une scène avec ce déclencheur pour réagir quand un film jamais vu
+auparavant apparaît dans le programme (envoyer un message, par exemple). Le
+déclencheur expose le titre du film, sa date de sortie, les horaires du jour
+et le lien de réservation comme variables de scène. L'intégration vérifie
+l'apparition de nouveaux films deux fois par jour.
 
 ## Limites connues (v1)
 

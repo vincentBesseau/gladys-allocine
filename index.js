@@ -1,9 +1,12 @@
 // -----------------------------------------------------------------------------
 // Entry point of the Gladys external integration.
 //
-// This is a "movies" type integration (Gladys contract B.19): it answers
-// `movies.getUpcoming` with the films currently playing at ONE configured
-// cinema, and exposes a "Find my cinema" action to look up its AlloCiné ID.
+// This is a "provider" type integration (Gladys capabilities/provider-type.md):
+// it has no device surface, and declares two capabilities instead — a
+// dashboard widget (capabilities/dashboard-widgets.md, "now_playing") and a
+// scene trigger (capabilities/scene-triggers-and-actions.md, "new_film") —
+// for the films currently playing at ONE configured cinema. It also exposes
+// a "Find my cinema" action to look up the cinema's AlloCiné ID.
 //
 // Environment variables provided by the Gladys supervisor to the container:
 //   - GLADYS_HOST_API_URL         (host API URL)
@@ -17,6 +20,8 @@ import { normalizeConfig, validateConfig } from './src/config.js';
 import { searchCinemas } from './src/allocine/cinemas.js';
 import { nearbyCinemas } from './src/allocine/nearby.js';
 import { fetchNowPlaying } from './src/allocine/nowPlaying.js';
+import { buildNowPlayingContent, resolvePosterUrl } from './src/allocine/widget.js';
+import { startNewFilmPolling, stopNewFilmPolling } from './src/allocine/newFilmPolling.js';
 
 const gladys = new GladysIntegration();
 
@@ -88,12 +93,32 @@ gladys.onAction('search_cinemas', async (fields) => {
   return results.map(formatCinemaLine).join('\n');
 });
 
-gladys.onMoviesGetUpcoming(async () => {
+gladys.onWidgetGet('now_playing', async () => {
   validateConfig(config);
 
-  logger.info(`onMoviesGetUpcoming <- cinema ${config.cinema_id}`);
+  logger.info(`onWidgetGet(now_playing) <- cinema ${config.cinema_id}`);
 
-  return fetchNowPlaying(config.cinema_id);
+  const movies = await fetchNowPlaying(config.cinema_id);
+
+  return buildNowPlayingContent(movies);
+});
+
+gladys.onWidgetGetImage(async (imageKey) => {
+  const posterUrl = resolvePosterUrl(imageKey);
+
+  if (!posterUrl) {
+    throw new Error(`onWidgetGetImage: unknown image key "${imageKey}"`);
+  }
+
+  const response = await fetch(posterUrl);
+
+  if (!response.ok) {
+    throw new Error(`onWidgetGetImage: allocine.fr HTTP ${response.status} on ${posterUrl}`);
+  }
+
+  const bytes = Buffer.from(await response.arrayBuffer());
+
+  return bytes.toString('base64');
 });
 
 gladys.onConfigUpdated(async (newConfig) => {
@@ -105,6 +130,7 @@ gladys.onConfigUpdated(async (newConfig) => {
     validateConfig(config);
 
     await gladys.setConnectionStatus(true);
+    startNewFilmPolling(gladys, () => fetchNowPlaying(config.cinema_id));
   } catch (error) {
     await gladys.setConnectionStatus(false, {
       en: error.message,
@@ -120,6 +146,7 @@ gladys.on('connected', async () => {
     validateConfig(config);
 
     await gladys.setConnectionStatus(true);
+    startNewFilmPolling(gladys, () => fetchNowPlaying(config.cinema_id));
   } catch (error) {
     await gladys.setConnectionStatus(false, {
       en: error.message,
@@ -127,6 +154,8 @@ gladys.on('connected', async () => {
     });
   }
 });
+
+gladys.handleShutdown(async () => stopNewFilmPolling());
 
 logger.info('Starting the AlloCiné integration...');
 

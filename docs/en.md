@@ -1,7 +1,8 @@
 # AlloCiné
 
-Movies currently playing at any French cinema — chain or independent —
-shown in Gladys's "Upcoming Releases" widget.
+Movies currently playing at any French cinema — chain or independent — as a
+dashboard widget, with a scene trigger for when a new film joins the
+program.
 
 ## Important: unofficial integration
 
@@ -26,10 +27,17 @@ itself.
    for a proximity search).
 3. Copy the ID of your cinema into the **Cinema ID** field, then save.
 
-The films playing today at that cinema then appear in the dashboard's
-"Upcoming Releases" widget. Clicking a poster opens the film's detail card,
-which shows a table of today's showtimes at that cinema (time and version,
-VF/VOST).
+Add the integration's **now_playing** widget to a Gladys dashboard to see the
+films playing today at that cinema: poster, a booking link and today's
+showtimes (time and version, VF/VOST).
+
+## Scene trigger
+
+The integration also declares a **new_film** scene trigger: create a scene
+with this trigger to react when a film not seen before appears in the
+program (send a message, for example). The trigger exposes the film's
+title, release date, today's showtimes and booking link as scene variables.
+The integration checks for new films twice a day.
 
 ## Known limitations (v1)
 
