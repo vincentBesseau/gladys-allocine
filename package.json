@@ -1,6 +1,6 @@
 {
   "name": "gladys-allocine",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "description": "AlloCiné integration for Gladys Assistant: movies currently playing at any French cinema (chain or independent).",
   "type": "module",
