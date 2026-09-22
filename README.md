@@ -4,7 +4,7 @@
 [![CI](https://github.com/vincentBesseau/gladys-allocine/actions/workflows/ci.yml/badge.svg)](https://github.com/vincentBesseau/gladys-allocine/actions/workflows/ci.yml)
 [![Docker pulls](https://ghcr-badge.elias.eu.org/shield/vincentBesseau/gladys-allocine/gladys-allocine)](https://github.com/vincentBesseau/gladys-allocine/pkgs/container/gladys-allocine)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](https://www.apache.org/licenses/LICENSE-2.0)
-[![Gladys](https://img.shields.io/badge/gladys-%3E%3D5.0.4-6f42c1)](https://gladysassistant.com)
+[![Gladys](https://img.shields.io/badge/gladys-%3E%3D5.1.1-6f42c1)](https://gladysassistant.com)
 
 AlloCiné integration for [Gladys Assistant](https://gladysassistant.com):
 movies currently playing at **any French cinema — chain or independent** —
@@ -89,22 +89,6 @@ Conventions: ESM, native `fetch` (no HTTP client dependency), `node --test`
 `gladys-pathe`. No static cinema list here (see above): both cinema search
 and showtimes are live calls.
 
-### SDK dependency (temporary)
-
-`onWidgetGet`, `onWidgetGetImage` and `publishSceneEvent` — the primitives
-behind the dashboard widget and the scene trigger — are not in a published
-SDK release yet: they live on a personal fork, branch
-`widgets-and-scene-triggers`, matching the not-yet-merged Gladys core
-capabilities above. `package.json` points `@gladysassistant/integration-sdk`
-at that branch directly:
-
-```json
-"@gladysassistant/integration-sdk": "github:vincentBesseau/integration-sdk-js#widgets-and-scene-triggers"
-```
-
-Switch this back to a published `^x.y.z` version once the SDK ships these
-capabilities officially.
-
 ## Related integrations
 
 Chain-specific siblings, useful when you always want one specific chain
@@ -117,16 +101,15 @@ without typing a search:
 ## Publishing checklist
 
 - [x] `gladys_version` in `gladys-assistant-integration.json` set to
-      `>=5.0.4`, the floor for the Gladys core capabilities this integration
-      needs (dashboard widgets and scene triggers declared by external
-      integrations, [#3109](https://github.com/GladysAssistant/Gladys/pull/3109)
-      / [#3110](https://github.com/GladysAssistant/Gladys/pull/3110), both
-      open at the time of writing) — re-check once they ship in an actual
-      release.
-- [ ] Swap the SDK dependency to a published version (see above).
+      `>=5.1.1`, the first Gladys release with the core capabilities this
+      integration needs (dashboard widgets and scene triggers declared by
+      external integrations, [#3109](https://github.com/GladysAssistant/Gladys/pull/3109)
+      / [#3110](https://github.com/GladysAssistant/Gladys/pull/3110), both merged).
+- [x] SDK dependency on the official, published `@gladysassistant/integration-sdk`
+      (no fork).
 - [x] Add a `cover.png` (referenced by `cover_image` in the manifest) — 800x534, under 150 KB.
-- [ ] Run **Release** (GitHub Actions) once ready to cut `v0.1.0` and publish
-      the image to `ghcr.io/vincentbesseau/gladys-allocine`.
+- [x] Run **Release** (GitHub Actions) to cut `v1.0.0` and publish the image
+      to `ghcr.io/vincentbesseau/gladys-allocine`.
 
 ## License
 
