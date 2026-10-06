@@ -21,6 +21,7 @@ import { searchCinemas } from './src/allocine/cinemas.js';
 import { nearbyCinemas } from './src/allocine/nearby.js';
 import { fetchNowPlaying } from './src/allocine/nowPlaying.js';
 import { buildNowPlayingContent, resolvePosterUrl } from './src/allocine/widget.js';
+import { fitImageForWidget } from './src/image.js';
 import { startNewFilmPolling, stopNewFilmPolling } from './src/allocine/newFilmPolling.js';
 
 const gladys = new GladysIntegration();
@@ -118,7 +119,10 @@ gladys.onWidgetGetImage(async (imageKey) => {
 
   const bytes = Buffer.from(await response.arrayBuffer());
 
-  return bytes.toString('base64');
+  // Gladys caps widget images (300 KB): downscale what the site serves above it.
+  const fitted = await fitImageForWidget(bytes);
+
+  return fitted.toString('base64');
 });
 
 gladys.onConfigUpdated(async (newConfig) => {
