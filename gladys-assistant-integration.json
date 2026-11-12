@@ -9,13 +9,9 @@
   "version": "1.1.3",
   "docker_image": "ghcr.io/vincentbesseau/gladys-allocine:1.1.3",
   "gladys_version": ">=5.1.1",
-  "categories": [
-    "multimedia"
-  ],
+  "categories": ["multimedia"],
   "cover_image": "https://raw.githubusercontent.com/vincentBesseau/gladys-allocine/main/cover.png",
-  "transports": [
-    "cloud"
-  ],
+  "transports": ["cloud"],
   "location": true,
   "config_schema": [
     {
@@ -81,7 +77,21 @@
         "fr": "Les films à l'affiche aujourd'hui dans votre cinéma configuré, avec les horaires."
       },
       "icon": "film",
-      "action_timeout_seconds": 15
+      "action_timeout_seconds": 15,
+      "settings": [
+        {
+          "key": "cinema_id",
+          "type": "string",
+          "label": {
+            "en": "Cinema ID (optional)",
+            "fr": "Identifiant du cinéma (optionnel)"
+          },
+          "description": {
+            "en": "Show a different cinema than the integration's one, so a dashboard can hold several cinemas. Leave empty to use the integration's configured cinema. Use the \"Find my cinema\" action to get an ID (e.g. P0905).",
+            "fr": "Afficher un autre cinéma que celui de l'intégration, pour avoir plusieurs cinémas sur un dashboard. Laissez vide pour utiliser le cinéma configuré dans l'intégration. Utilisez l'action « Trouver mon cinéma » pour obtenir un identifiant (par ex. P0905)."
+          }
+        }
+      ]
     }
   ],
   "scene_triggers": [

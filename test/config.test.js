@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizeConfig, validateConfig } from '../src/config.js';
+import { normalizeConfig, validateConfig, resolveWidgetCinemaId } from '../src/config.js';
 
 test('normalizeConfig trims, uppercases and defaults cinema_id', () => {
   assert.deepEqual(normalizeConfig(), { cinema_id: '' });
@@ -33,4 +33,15 @@ test('validateConfig accepts a well-formed AlloCiné internalId', () => {
   // Lyon's Ciné Théâtre Marcel Pagnol is G0FQ8.
   assert.doesNotThrow(() => validateConfig({ cinema_id: 'G028P' }));
   assert.doesNotThrow(() => validateConfig({ cinema_id: 'G0FQ8' }));
+});
+
+test('resolveWidgetCinemaId prefers the widget setting, trimmed and uppercased', () => {
+  assert.equal(resolveWidgetCinemaId({ cinema_id: 'P0001' }, { cinema_id: ' g028p ' }), 'G028P');
+});
+
+test('resolveWidgetCinemaId falls back to the integration cinema when the setting is empty or absent', () => {
+  assert.equal(resolveWidgetCinemaId({ cinema_id: 'P0001' }, { cinema_id: '' }), 'P0001');
+  assert.equal(resolveWidgetCinemaId({ cinema_id: 'P0001' }, { cinema_id: '   ' }), 'P0001');
+  assert.equal(resolveWidgetCinemaId({ cinema_id: 'P0001' }, {}), 'P0001');
+  assert.equal(resolveWidgetCinemaId({ cinema_id: 'P0001' }), 'P0001');
 });

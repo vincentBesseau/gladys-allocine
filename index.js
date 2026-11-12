@@ -16,7 +16,7 @@
 // -----------------------------------------------------------------------------
 
 import { GladysIntegration, logger } from '@gladysassistant/integration-sdk';
-import { normalizeConfig, validateConfig } from './src/config.js';
+import { normalizeConfig, validateConfig, resolveWidgetCinemaId } from './src/config.js';
 import { searchCinemas } from './src/allocine/cinemas.js';
 import { nearbyCinemas } from './src/allocine/nearby.js';
 import { fetchNowPlaying } from './src/allocine/nowPlaying.js';
@@ -94,12 +94,18 @@ gladys.onAction('search_cinemas', async (fields) => {
   return results.map(formatCinemaLine).join('\n');
 });
 
-gladys.onWidgetGet('now_playing', async () => {
-  validateConfig(config);
+gladys.onWidgetGet('now_playing', async (options = {}) => {
+  // Each widget instance may target its own cinema through its `cinema_id`
+  // setting; when left empty it falls back to the integration-wide cinema. This
+  // lets one dashboard show several cinemas without reconfiguring the
+  // integration (and an old widget with no setting keeps its current cinema).
+  const cinemaId = resolveWidgetCinemaId(config, options.settings);
 
-  logger.info(`onWidgetGet(now_playing) <- cinema ${config.cinema_id}`);
+  validateConfig({ cinema_id: cinemaId });
 
-  const movies = await fetchNowPlaying(config.cinema_id);
+  logger.info(`onWidgetGet(now_playing) <- cinema ${cinemaId}`);
+
+  const movies = await fetchNowPlaying(cinemaId);
 
   return buildNowPlayingContent(movies);
 });

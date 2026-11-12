@@ -28,3 +28,18 @@ export function validateConfig(config) {
     throw new Error('Cinema ID must look like P0905 or G028P (see the "Find my cinema" action).');
   }
 }
+
+/**
+ * The cinema a given "now playing" widget instance should show: its own
+ * per-widget `cinema_id` setting when the user filled it (so one dashboard can
+ * hold several cinemas without reconfiguring the integration), otherwise the
+ * integration-wide configured cinema. The result is normalized (trimmed,
+ * uppercased) the same way as the stored config; the caller still validates it.
+ */
+export function resolveWidgetCinemaId(config, settings = {}) {
+  const fromWidget = String(settings?.cinema_id ?? '')
+    .trim()
+    .toUpperCase();
+
+  return fromWidget || config.cinema_id;
+}
