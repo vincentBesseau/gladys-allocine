@@ -16,11 +16,12 @@
 // -----------------------------------------------------------------------------
 
 import { GladysIntegration, logger } from '@gladysassistant/integration-sdk';
-import { normalizeConfig, validateConfig } from './src/config.js';
+import { normalizeConfig, validateConfig, resolveWidgetCinema } from './src/config.js';
 import { searchCinemas } from './src/allocine/cinemas.js';
 import { nearbyCinemas } from './src/allocine/nearby.js';
 import { fetchNowPlaying } from './src/allocine/nowPlaying.js';
-import { buildNowPlayingContent, resolvePosterUrl } from './src/allocine/widget.js';
+import { attachTrailers } from './src/allocine/trailers.js';
+import { buildNowPlayingContent, resolvePosterUrl, MAX_GRID_ITEMS } from './src/allocine/widget.js';
 import { fitImageForWidget } from './src/image.js';
 import { startNewFilmPolling, stopNewFilmPolling } from './src/allocine/newFilmPolling.js';
 
@@ -94,14 +95,24 @@ gladys.onAction('search_cinemas', async (fields) => {
   return results.map(formatCinemaLine).join('\n');
 });
 
-gladys.onWidgetGet('now_playing', async () => {
-  validateConfig(config);
+gladys.onWidgetGet('now_playing', async (options = {}) => {
+  // Each widget instance picks one of the configured cinemas through its
+  // `cinema` setting (a 1..5 slot); when unset it falls back to the first
+  // configured cinema. This lets one dashboard show several cinemas, chosen from
+  // the cinemas set up once in the integration config.
+  const cinema = resolveWidgetCinema(config, options.settings);
 
-  logger.info(`onWidgetGet(now_playing) <- cinema ${config.cinema_id}`);
+  validateConfig({ cinema_id: cinema.id });
 
-  const movies = await fetchNowPlaying(config.cinema_id);
+  logger.info(`onWidgetGet(now_playing) <- cinema ${cinema.id}`);
 
-  return buildNowPlayingContent(movies);
+  const movies = await fetchNowPlaying(cinema.id);
+
+  // Resolve trailer links for the films actually shown (one page read each),
+  // best-effort — a missing trailer never fails the widget.
+  await attachTrailers(movies.slice(0, MAX_GRID_ITEMS));
+
+  return buildNowPlayingContent(movies, { title: cinema.name });
 });
 
 gladys.onWidgetGetImage(async (imageKey) => {

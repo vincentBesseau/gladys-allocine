@@ -35,6 +35,16 @@ Gladys pour voir les films à l'affiche aujourd'hui dans ce cinéma : affiche,
 lien de réservation et horaires de séances du jour (heure et version,
 VF/VOST).
 
+Pour suivre **plusieurs cinémas** (jusqu'à 5), renseignez-les dans la
+configuration de l'intégration (section **Cinémas supplémentaires**), chacun
+avec son nom et son identifiant. Ajoutez ensuite un widget **À l'affiche** par
+cinéma : le réglage **Cinéma** de chaque widget choisit lequel afficher
+(_Cinéma 1_ est le principal, _2 à 5_ les cinémas supplémentaires). Le nom
+configuré s'affiche comme titre du widget.
+
+Quand un film a une bande-annonce, un lien **Bande-annonce** apparaît à côté du
+lien de réservation (en cliquant sur le film).
+
 ## Déclencheur de scène
 
 L'intégration déclare aussi un déclencheur de scène **Nouveau film ajouté** :

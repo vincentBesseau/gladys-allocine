@@ -13,6 +13,40 @@ test('buildNowPlayingContent returns an empty component list for an empty progra
   assert.deepEqual(content, { version: 1, ttl_seconds: 900, components: [] });
 });
 
+test('buildNowPlayingContent adds a heading with the cinema name when a title is given', () => {
+  const movie = {
+    id: '1',
+    title: 'A',
+    releaseDate: '2026-01-01',
+    sourceUrl: 'https://example.test/1',
+  };
+
+  const withFilms = buildNowPlayingContent([movie], { title: 'Le Rex' });
+  assert.deepEqual(withFilms.components[0], { type: 'text', variant: 'heading', text: 'Le Rex' });
+  assert.equal(withFilms.components[1].type, 'card-list');
+
+  // The heading is kept even on an empty program, so the card still names its cinema.
+  const empty = buildNowPlayingContent([], { title: 'Le Rex' });
+  assert.deepEqual(empty.components, [{ type: 'text', variant: 'heading', text: 'Le Rex' }]);
+});
+
+test('buildNowPlayingContent adds a trailer link when the movie has a trailerUrl', () => {
+  const movie = {
+    id: '1',
+    title: 'A',
+    releaseDate: '2026-01-01',
+    sourceUrl: 'https://example.test/1',
+    trailerUrl: 'https://www.allocine.fr/video/player_gen_cmedia=9&cfilm=1.html',
+  };
+
+  const [{ items }] = buildNowPlayingContent([movie]).components;
+
+  assert.deepEqual(items[0].links, [
+    { url: movie.sourceUrl, label: { en: 'Book', fr: 'Réserver' } },
+    { url: movie.trailerUrl, label: { en: 'Trailer', fr: 'Bande-annonce' } },
+  ]);
+});
+
 test('buildNowPlayingContent renders a card-list item with showtimes and a book link (AlloCiné never sets trailerUrl)', () => {
   const movie = {
     id: '327993',

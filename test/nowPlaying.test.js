@@ -42,6 +42,7 @@ test('parses films playing today, with showtimes, dropping ones with no session 
     overview: 'A bientôt 40 ans, David Zimmerman est photographe mais personne ne le sait.',
     posterUrl: 'https://fr.web.img3.acsta.net/img/af/a2/afa2a4e9bb49e003bceb86c209f46033.jpg',
     sourceUrl: 'https://www.allocine.fr/film/fichefilm_gen_cfilm=327993.html',
+    hasTrailer: false,
     showtimes: [
       { time: '14:00', version: 'VF' },
       { time: '20:30', version: 'VF' },
@@ -71,6 +72,30 @@ test('returns an empty array when nothing plays today', async () => {
   globalThis.fetch = async () => ({ ok: true, json: async () => ({ error: false, results: [] }) });
 
   assert.deepEqual(await fetchNowPlaying('P0052'), []);
+});
+
+test('carries the hasTrailer flag from AlloCiné onto the movie', async () => {
+  globalThis.fetch = async () => ({
+    ok: true,
+    json: async () => ({
+      error: false,
+      results: [
+        {
+          movie: {
+            internalId: 42,
+            title: 'With trailer',
+            flags: { hasTrailer: true },
+            releases: [{ releaseDate: { date: '2026-01-01' } }],
+          },
+          showtimes: { multiple: [{ startsAt: '2026-08-30T20:00:00' }] },
+        },
+      ],
+    }),
+  });
+
+  const [movie] = await fetchNowPlaying('P0052', { now: realNow });
+
+  assert.equal(movie.hasTrailer, true);
 });
 
 test('treats no.showtime.error as an empty program, not an error', async () => {

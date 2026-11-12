@@ -31,6 +31,15 @@ Add the integration's **now_playing** widget to a Gladys dashboard to see the
 films playing today at that cinema: poster, a booking link and today's
 showtimes (time and version, VF/VOST).
 
+To follow **several cinemas** (up to 5), add them in the integration
+configuration (the **More cinemas** section), each with its name and ID. Then
+add one **now_playing** widget per cinema: each widget's **Cinema** setting
+chooses which one to show (_Cinema 1_ is the main one, _2–5_ the extra cinemas).
+The configured name is used as the widget title.
+
+When a film has a trailer, a **Trailer** link appears next to the booking link
+(by tapping the film).
+
 ## Scene trigger
 
 The integration also declares a **new_film** scene trigger: create a scene
