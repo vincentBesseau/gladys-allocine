@@ -49,3 +49,39 @@ export function allocineGet(path) {
 export function allocinePost(path) {
   return allocineFetch(path, { method: 'POST' });
 }
+
+/**
+ * GET a text (HTML) page — used to read a film page for its trailer. Supports a
+ * byte-range cap (`rangeBytes`) so only the head of a large page is downloaded,
+ * and a per-call timeout shorter than the default so one slow page cannot eat
+ * the whole widget ack budget.
+ * @param {string} path - path under allocine.fr, e.g. "film/fichefilm_gen_cfilm=123.html".
+ * @param {object} [options]
+ * @param {number} [options.timeoutMs]
+ * @param {number} [options.rangeBytes] - when set, request only bytes 0..rangeBytes-1.
+ * @returns {Promise<string>} The response body as text.
+ */
+export async function allocineGetText(path, { timeoutMs = REQUEST_TIMEOUT_MS, rangeBytes } = {}) {
+  const url = `${BASE_URL}/${path}`;
+  const headers = { 'User-Agent': USER_AGENT };
+
+  if (rangeBytes) {
+    headers.Range = `bytes=0-${rangeBytes - 1}`;
+  }
+
+  logger.debug(`allocine.fr request -> GET ${url}`);
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers,
+    signal: AbortSignal.timeout(timeoutMs),
+  });
+
+  // 206 Partial Content is the expected answer to a Range request; treat it as
+  // success alongside 200.
+  if (!response.ok && response.status !== 206) {
+    throw new Error(`allocine.fr HTTP ${response.status} on ${path}`);
+  }
+
+  return response.text();
+}

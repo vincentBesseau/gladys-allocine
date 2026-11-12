@@ -1,47 +1,80 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizeConfig, validateConfig, resolveWidgetCinemaId } from '../src/config.js';
+import { normalizeConfig, validateConfig, resolveWidgetCinema } from '../src/config.js';
 
-test('normalizeConfig trims, uppercases and defaults cinema_id', () => {
-  assert.deepEqual(normalizeConfig(), { cinema_id: '' });
-  assert.deepEqual(normalizeConfig({ cinema_id: ' p0905 ' }), { cinema_id: 'P0905' });
+test('normalizeConfig reads the default cinema (slot 1 keeps the historical keys)', () => {
+  assert.deepEqual(normalizeConfig(), { cinema_id: '', cinemas: [] });
+  assert.deepEqual(normalizeConfig({ cinema_id: ' p0905 ', cinema_name: ' Le Rex ' }), {
+    cinema_id: 'P0905',
+    cinemas: [{ id: 'P0905', name: 'Le Rex' }],
+  });
 });
 
-test('validateConfig throws when cinema_id is empty', () => {
-  assert.throws(() => validateConfig({ cinema_id: '' }), /Find my cinema/);
+test('normalizeConfig collects up to five cinemas in slot order, skipping empty slots', () => {
+  const config = normalizeConfig({
+    cinema_id: 'p0905',
+    cinema_name: 'One',
+    cinema_id_2: '',
+    cinema_id_3: 'g028p',
+    cinema_name_3: 'Three',
+  });
+
+  assert.equal(config.cinema_id, 'P0905');
+  assert.deepEqual(config.cinemas, [
+    { id: 'P0905', name: 'One' },
+    { id: 'G028P', name: 'Three' },
+  ]);
 });
 
-test('validateConfig throws when cinema_id is not a letter followed by four alphanumerics', () => {
-  assert.throws(() => validateConfig({ cinema_id: 'ABC' }), /must look like P0905/);
-  assert.throws(() => validateConfig({ cinema_id: 'P905' }), /must look like P0905/);
-  assert.throws(() => validateConfig({ cinema_id: 'P09055' }), /must look like P0905/);
-  assert.throws(() => validateConfig({ cinema_id: 'P090!' }), /must look like P0905/);
+test('validateConfig throws when no cinema is set', () => {
+  assert.throws(() => validateConfig({ cinema_id: '', cinemas: [] }), /Find my cinema/);
 });
 
-test('validateConfig rejects a code that does not start with a letter', () => {
-  // AlloCiné theater ids always start with a letter; a digit-first code is one
-  // copied from the wrong place (e.g. an old "csalle" reference like 5914Z) and
-  // would 404 on every showtimes fetch, so it is caught at config time.
+test('validateConfig rejects any badly-formatted cinema id (incl. digit-first like 5914Z)', () => {
   assert.throws(() => validateConfig({ cinema_id: '5914Z' }), /must look like P0905/);
-  assert.throws(() => validateConfig({ cinema_id: '02828' }), /must look like P0905/);
+  assert.throws(() => validateConfig({ cinema_id: 'P905' }), /must look like P0905/);
+  assert.throws(
+    () =>
+      validateConfig({
+        cinema_id: 'P0905',
+        cinemas: [
+          { id: 'P0905', name: '' },
+          { id: '5914Z', name: '' },
+        ],
+      }),
+    /must look like P0905/,
+  );
 });
 
-test('validateConfig accepts a well-formed AlloCiné internalId', () => {
-  // Letter + four digits, the common shape.
+test('validateConfig accepts well-formed AlloCiné internalIds', () => {
   assert.doesNotThrow(() => validateConfig({ cinema_id: 'P0905' }));
-  // Codes with letters in other positions are just as valid: Vichy is G028P,
-  // Lyon's Ciné Théâtre Marcel Pagnol is G0FQ8.
   assert.doesNotThrow(() => validateConfig({ cinema_id: 'G028P' }));
-  assert.doesNotThrow(() => validateConfig({ cinema_id: 'G0FQ8' }));
+  assert.doesNotThrow(() =>
+    validateConfig({
+      cinema_id: 'P0905',
+      cinemas: [
+        { id: 'P0905', name: '' },
+        { id: 'G0FQ8', name: '' },
+      ],
+    }),
+  );
 });
 
-test('resolveWidgetCinemaId prefers the widget setting, trimmed and uppercased', () => {
-  assert.equal(resolveWidgetCinemaId({ cinema_id: 'P0001' }, { cinema_id: ' g028p ' }), 'G028P');
+test('resolveWidgetCinema picks the cinema at the selected slot', () => {
+  const config = normalizeConfig({
+    cinema_id: 'P0905',
+    cinema_name: 'One',
+    cinema_id_2: 'G028P',
+    cinema_name_2: 'Two',
+  });
+
+  assert.deepEqual(resolveWidgetCinema(config, { cinema: '2' }), { id: 'G028P', name: 'Two' });
 });
 
-test('resolveWidgetCinemaId falls back to the integration cinema when the setting is empty or absent', () => {
-  assert.equal(resolveWidgetCinemaId({ cinema_id: 'P0001' }, { cinema_id: '' }), 'P0001');
-  assert.equal(resolveWidgetCinemaId({ cinema_id: 'P0001' }, { cinema_id: '   ' }), 'P0001');
-  assert.equal(resolveWidgetCinemaId({ cinema_id: 'P0001' }, {}), 'P0001');
-  assert.equal(resolveWidgetCinemaId({ cinema_id: 'P0001' }), 'P0001');
+test('resolveWidgetCinema falls back to the first cinema when the slot is missing or out of range', () => {
+  const config = normalizeConfig({ cinema_id: 'P0905', cinema_name: 'One', cinema_id_2: 'G028P' });
+
+  assert.deepEqual(resolveWidgetCinema(config, {}), { id: 'P0905', name: 'One' });
+  assert.deepEqual(resolveWidgetCinema(config, { cinema: '5' }), { id: 'P0905', name: 'One' });
+  assert.deepEqual(resolveWidgetCinema(config), { id: 'P0905', name: 'One' });
 });

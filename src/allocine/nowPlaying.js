@@ -79,6 +79,9 @@ function toMovie(result) {
     overview: movie.synopsis || undefined,
     posterUrl: movie.poster?.url || undefined,
     sourceUrl: `https://www.allocine.fr/film/fichefilm_gen_cfilm=${movie.internalId}.html`,
+    // Only a flag here; the trailer URL itself is resolved on demand for the
+    // displayed films (attachTrailers), since it requires a separate page read.
+    hasTrailer: Boolean(movie.flags?.hasTrailer),
     showtimes,
   };
 }

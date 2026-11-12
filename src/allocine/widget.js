@@ -14,6 +14,12 @@
 
 const posterUrlByImageKey = new Map();
 
+// The grid caps at 12 cards (dashboard-widgets.md: card-list "1-12 in grid"),
+// and a widget can carry only one focal component, so a second card-list would
+// be dropped by the core. Exposed so callers enrich only the displayed films
+// (e.g. trailer lookups) rather than the whole program.
+const MAX_GRID_ITEMS = 12;
+
 function imageKeyOf(filmId) {
   return `poster-${filmId}`;
 }
@@ -30,21 +36,24 @@ function joinShowtimes(showtimes) {
 
 /**
  * @param {Array<object>} movies - The films currently playing, from fetchNowPlaying().
+ * @param {object} [options]
+ * @param {string} [options.title] - Cinema name, shown as the card heading so
+ *   several "now playing" widgets on one dashboard are told apart.
  * @returns {object} A widget content tree (dashboard-widgets.md, section 4).
  */
-function buildNowPlayingContent(movies) {
+function buildNowPlayingContent(movies, { title } = {}) {
+  // A heading naming the cinema goes in the header slot (canonical order), kept
+  // even on an empty program so the card still says which cinema it is.
+  const heading = title ? [{ type: 'text', variant: 'heading', text: title }] : [];
+
   if (movies.length === 0) {
-    return { version: 1, ttl_seconds: 900, components: [] };
+    return { version: 1, ttl_seconds: 900, components: heading };
   }
 
-  // The grid caps at 12 cards (dashboard-widgets.md: card-list "1-12 in grid"),
-  // and a widget can carry only one focal component, so a second card-list
-  // would be dropped by the core. A cinema can run more than 12 films, so the
-  // films past the cap would silently vanish. Rather than leave the user
-  // guessing what is missing, name them in a short body line under the grid
-  // (the core renders a `text`/`body` in the slot below the focal component).
-  const MAX_GRID_ITEMS = 12;
-
+  // A cinema can run more than MAX_GRID_ITEMS films, so the films past the cap
+  // would silently vanish. Rather than leave the user guessing what is missing,
+  // name them in a short body line under the grid (the core renders a
+  // `text`/`body` in the slot below the focal component).
   const items = movies.slice(0, MAX_GRID_ITEMS).map((movie) => {
     const links = [{ url: movie.sourceUrl, label: { en: 'Book', fr: 'Réserver' } }];
 
@@ -72,7 +81,7 @@ function buildNowPlayingContent(movies) {
     return item;
   });
 
-  const components = [{ type: 'card-list', display: 'grid', items }];
+  const components = [...heading, { type: 'card-list', display: 'grid', items }];
 
   const hidden = movies.slice(MAX_GRID_ITEMS);
 
@@ -111,4 +120,4 @@ function resolvePosterUrl(imageKey) {
   return posterUrlByImageKey.get(imageKey);
 }
 
-export { buildNowPlayingContent, resolvePosterUrl, imageKeyOf, joinShowtimes };
+export { buildNowPlayingContent, resolvePosterUrl, imageKeyOf, joinShowtimes, MAX_GRID_ITEMS };
